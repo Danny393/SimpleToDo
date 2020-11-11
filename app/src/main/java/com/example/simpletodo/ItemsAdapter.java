@@ -13,10 +13,19 @@ import java.util.List;
 //Responsible for displaying data from the DataStructure into a row in the recycler view
 public class ItemsAdapter extends  RecyclerView.Adapter<ItemsAdapter.ViewHolder>{
 
-    List<String> itemList;
+    //class interface so that the View Holder can invoke a function to let the
+    //adapter know that something was clicked
+    public interface LongClickHandler{
+        //abstract function that needs to be implemented when a new instance of this object is made
+        void handleLongClick(int position);
+    }
 
-    public ItemsAdapter(List<String> list) {
+    List<String> itemList;
+    LongClickHandler clickHandler;
+
+    public ItemsAdapter(List<String> list, LongClickHandler handler) {
         itemList = list;
+        clickHandler = handler;
     }
 
     @NonNull
@@ -47,13 +56,25 @@ public class ItemsAdapter extends  RecyclerView.Adapter<ItemsAdapter.ViewHolder>
     }
 
     //Container to provide ease of access to views that represent each row of the list
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvItem;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvItem = itemView.findViewById(android.R.id.text1);
+
+            tvItem.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    //When this listener goes off it will call a function that is inside
+                    //another class, if this class is located outside of the adapter then it
+                    //can pass info to it
+                    //here was pass the position of the item that was long clicked
+                    clickHandler.handleLongClick(getAdapterPosition());
+                    return true;
+                }
+            });
         }
 
         //Update the view inside the view holder with this item

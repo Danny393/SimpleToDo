@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
             itemAdapter.notifyItemChanged(position);
             //persist data
             saveItems();
+            Toast.makeText(getApplicationContext(), "Item was updated", Toast.LENGTH_SHORT).show();
         }
         else {
             Log.w("MainActivity","Unknown call to onActivityResult");

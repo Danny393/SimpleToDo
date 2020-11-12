@@ -5,11 +5,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         etItem = findViewById(R.id.etItem);
         rvItems = findViewById(R.id.rvItems);
 
-        itemList = new ArrayList<>();
+        loadItems();
 
         //this is an object that allows the ViewHolder communicate to the Adapter
         //since it is created outside of the adapter it can pass info over
@@ -46,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
                 //notify the adapter to remove the item
                 itemAdapter.notifyItemRemoved(position);
                 Toast.makeText(getApplicationContext(), "Item was removed", Toast.LENGTH_SHORT).show();
+                //the data structure changes so we want to save
+                saveItems();
             }
         };
 
@@ -70,7 +78,37 @@ public class MainActivity extends AppCompatActivity {
                 etItem.setText("");
                 //display small pop up to confirm to th user that the item was added
                 Toast.makeText(getApplicationContext(), "Item was added", Toast.LENGTH_SHORT).show();
+                //the data structure changes so we want to save
+                saveItems();
             }
         });
+    }
+
+    //Logic for persistence
+
+    //Function to load the file so that we can work with it
+    private File getDataFile(){
+        return new File(getFilesDir(), "data.txt");
+    }
+
+    //function to read items from the file, we only want to read from the file
+    //when the app first start up
+    private void loadItems(){
+        try {
+            itemList = new ArrayList<>(FileUtils.readLines(getDataFile(), Charset.defaultCharset()));
+        } catch (IOException e) {
+            Log.e("MainActivity","Error reading items", e);
+            itemList = new ArrayList<>();
+        }
+    }
+
+    //function to write items to the file, we only want to write to the file
+    //when any change happens to the data structure that holds the items
+    public void saveItems(){
+        try {
+            FileUtils.writeLines(getDataFile(), itemList);
+        } catch (IOException e) {
+            Log.e("MainActivity","Error writing items", e);
+        }
     }
 }

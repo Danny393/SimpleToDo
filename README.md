@@ -28,7 +28,7 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## Notes
 
-Describe any challenges encountered while building the app.
+Understanding how Intents work with onActivityResult to send information from an Activity to its parent Activity was challenging, as well as understanding how interfaces can be used to pass information from a class to send information back to its super class to use on variables and/or data structures declared out of its scope, as was done for the adapter for the items.
 
 ## License
 

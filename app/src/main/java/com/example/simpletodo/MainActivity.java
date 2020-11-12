@@ -1,9 +1,12 @@
 package com.example.simpletodo;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +30,10 @@ public class MainActivity extends AppCompatActivity {
     EditText etItem;
     RecyclerView rvItems;
     ItemsAdapter itemAdapter;
+
+    static final String KEY_ITEM_TEXT = "item-text";
+    static final String KEY_ITEM_POSITION = "item-position";
+    final int EDIT_TEXT_CODE = 39;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +64,23 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        //the same as long click but for updating an item
+        ItemsAdapter.ShortClickHandler tapListener = new ItemsAdapter.ShortClickHandler() {
+            @Override
+            public void handleShortClick(int position) {
+                //We will start a new activity for the user to edit the item
+                Intent editActivity = new Intent(MainActivity.this, EditActivity.class);
+                //we want to send the activity some information to work with
+                editActivity.putExtra(KEY_ITEM_TEXT, itemList.get(position));
+                editActivity.putExtra(KEY_ITEM_POSITION, position);
+
+                //start the activity and have it return information for the main activity to handle
+                startActivityForResult(editActivity, EDIT_TEXT_CODE);
+            }
+        };
+
         //create the adapter for items
-        itemAdapter = new ItemsAdapter(itemList, clickListener);
+        itemAdapter = new ItemsAdapter(itemList, clickListener, tapListener);
         //let the recycler view use the adapter
         rvItems.setAdapter(itemAdapter);
         //tell the recycler view to display these items in a linear fashion
@@ -82,6 +104,26 @@ public class MainActivity extends AppCompatActivity {
                 saveItems();
             }
         });
+    }
+
+    //Logic to handle return Intent result
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        //make sure we are reacting the correct request and result code
+        if (resultCode == RESULT_OK && requestCode == EDIT_TEXT_CODE) {
+            //get the data from the Intent returned
+            String itemText = data.getStringExtra(KEY_ITEM_TEXT);
+            int position = data.getExtras().getInt(KEY_ITEM_POSITION);
+            //update both the data structure and notify adapter
+            itemList.set(position, itemText);
+            itemAdapter.notifyItemChanged(position);
+            //persist data
+            saveItems();
+        }
+        else {
+            Log.w("MainActivity","Unknown call to onActivityResult");
+        }
     }
 
     //Logic for persistence

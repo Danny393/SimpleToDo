@@ -20,12 +20,18 @@ public class ItemsAdapter extends  RecyclerView.Adapter<ItemsAdapter.ViewHolder>
         void handleLongClick(int position);
     }
 
+    public interface ShortClickHandler{
+        void handleShortClick(int position);
+    }
+
     List<String> itemList;
     LongClickHandler clickHandler;
+    ShortClickHandler tapHandler;
 
-    public ItemsAdapter(List<String> list, LongClickHandler handler) {
+    public ItemsAdapter(List<String> list, LongClickHandler handler1, ShortClickHandler handler2) {
         itemList = list;
-        clickHandler = handler;
+        clickHandler = handler1;
+        tapHandler = handler2;
     }
 
     @NonNull
@@ -73,6 +79,13 @@ public class ItemsAdapter extends  RecyclerView.Adapter<ItemsAdapter.ViewHolder>
                     //here was pass the position of the item that was long clicked
                     clickHandler.handleLongClick(getAdapterPosition());
                     return true;
+                }
+            });
+
+            tvItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    tapHandler.handleShortClick(getAdapterPosition());
                 }
             });
         }
